@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Giveaway</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #e5e7eb;
+    padding: 20px;
+}
+.container {
+    max-width: 1100px;
+    margin: auto;
+}
+h1 {
+    text-align: center;
+    color: #38bdf8;
+}
+.box {
+    margin-bottom: 20px;
+}
+label {
+    font-weight: bold;
+}
+textarea {
+    width: 95%;
+    height: 200px;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px;
+    resize: vertical;
+}
+button {
+    padding: 12px 20px;
+    font-size: 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.generate { background: #22c55e; }
+.copy { background: #3b82f6; color: #fff; margin-left: 10px; }
+
+.summary {
+    background: #020617;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+    font-weight: bold;
+}
+.summary span { color: #38bdf8; }
+
+.output {
+    background: #020617;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+.footer {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 13px;
+    color: #94a3b8;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>⚡ Giveaway</h1>
+
+<div class="box">
+<label>Paste BOT LIST</label>
+<textarea id="botList"></textarea>
+</div>
+
+<div class="box">
+<label>Paste CHANNEL + LINK LIST</label>
+<textarea id="channelList"></textarea>
+</div>
+
+<button class="generate" onclick="generate()">⚙️ Generate</button>
+<button class="copy" onclick="copyOutput()">📋 Copy All</button>
+
+<div id="summary" class="summary" style="display:none;">
+    <div>🔗 Total Links: <span id="totalLinks">0</span></div>
+    <div>✅ Matched: <span id="matched">0</span></div>
+    <div>❌ Not Found: <span id="notFound">0</span></div>
+</div>
+
+<div id="output" class="output"></div>
+
+<div class="footer">© 2025 | Giveaway Merge Tool</div>
+
+</div>
+
+<script>
+function normalize(text) {
+    return text.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function generate() {
+    const bots = document.getElementById("botList").value.trim().split("\n");
+    const channels = document.getElementById("channelList").value.trim().split("\n");
+
+    let channelMap = {};
+    let totalLinks = 0;
+
+    for (let i = 0; i < channels.length; i++) {
+        const name = channels[i]?.trim();
+        const link = channels[i + 1]?.trim();
+        if (name && link && link.startsWith("http")) {
+            channelMap[normalize(name)] = link;
+            totalLinks++;
+            i++;
+        }
+    }
+
+    let output = "";
+    let matched = 0;
+    let notFound = 0;
+
+    bots.forEach(line => {
+        line = line.trim();
+        if (!line) return;
+
+        output += line + "\n";
+
+        if (!line.startsWith("⚡") && !line.startsWith("@")) {
+            const key = normalize(line);
+            if (channelMap[key]) {
+                output += channelMap[key] + "\n\n";
+                matched++;
+            } else {
+                output += "❌ NOT FOUND\n\n";
+                notFound++;
+            }
+        }
+    });
+
+    document.getElementById("output").innerText = output;
+
+    document.getElementById("summary").style.display = "flex";
+    document.getElementById("totalLinks").innerText = totalLinks;
+    document.getElementById("matched").innerText = matched;
+    document.getElementById("notFound").innerText = notFound;
+}
+
+function copyOutput() {
+    navigator.clipboard.writeText(
+        document.getElementById("output").innerText
+    ).then(() => alert("✅ Output copied!"));
+}
+</script>
+
+</body>
+</html>
